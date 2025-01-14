@@ -162,7 +162,7 @@
               
               <el-form-item label="权限">
                 <el-radio-group v-model="adminc">
-                  <el-radio value=1>用户</el-radio>
+                  <el-radio value=1>学生</el-radio>
                   <el-radio value=0>教师</el-radio>
                 </el-radio-group>
               </el-form-item>
@@ -243,7 +243,7 @@
               
               <el-form-item label="权限">
                 <el-radio-group v-model="adminc">
-                  <el-radio value=1>用户</el-radio>
+                  <el-radio value=1>学生</el-radio>
                   <el-radio value=0>教师</el-radio>
                 </el-radio-group>
               </el-form-item>
