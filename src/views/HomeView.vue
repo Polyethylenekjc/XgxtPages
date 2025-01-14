@@ -3,17 +3,22 @@
     <el-aside width="200px">
       <el-scrollbar style="height: 100%; border-right: 1px solid grey;">
         <el-menu :default-openeds="['1', '3']">
+          <el-menu-item index="0">
+            <el-text>
+              你好,{{ name }}
+            </el-text>
+          </el-menu-item>
           <el-sub-menu index="1">
             <template #title>
-              <el-icon><User /></el-icon>学生信息
+              <el-icon><User /></el-icon>用户信息
             </template>
             <el-menu-item-group>
-              <el-menu-item index="1-1" @click="setActiveTab(1)"><el-icon><Document /></el-icon>学生基本信息</el-menu-item>
+              <el-menu-item index="1-1" @click="setActiveTab(1)"><el-icon><Document /></el-icon>用户基本信息</el-menu-item>
             </el-menu-item-group>
           </el-sub-menu>
           <el-sub-menu index="2">
             <template #title>
-              <el-icon><Search /></el-icon>学生信息查找
+              <el-icon><Search /></el-icon>用户信息查找
             </template>
             <el-menu-item-group>
               <el-menu-item index="2-1" @click="setActiveTab(2)">按学号查找</el-menu-item>
@@ -23,12 +28,12 @@
           </el-sub-menu>
           <el-sub-menu index="3">
             <template #title>
-              <el-icon><Edit /></el-icon>学生信息改动
+              <el-icon><Edit /></el-icon>用户信息改动
             </template>
             <el-menu-item-group>
-              <el-menu-item index="3-1" @click="setActiveTab(4)"><el-icon><EditPen /></el-icon>学生信息修改</el-menu-item>
-              <el-menu-item index="3-2" @click="setActiveTab(5)"><el-icon><DocumentAdd /></el-icon>添加学生</el-menu-item>
-              <el-menu-item index="3-3" @click="setActiveTab(6)"><el-icon><Delete /></el-icon>删除学生</el-menu-item>
+              <el-menu-item index="3-1" @click="setActiveTab(4)"><el-icon><EditPen /></el-icon>用户信息修改</el-menu-item>
+              <el-menu-item index="3-2" @click="setActiveTab(5)"><el-icon><DocumentAdd /></el-icon>添加用户</el-menu-item>
+              <el-menu-item index="3-3" @click="setActiveTab(6)"><el-icon><Delete /></el-icon>删除用户</el-menu-item>
               <el-menu-item index="3-4" @click="setActiveTab(11)"><el-icon><Check /></el-icon>修改密码</el-menu-item>
             </el-menu-item-group>
           </el-sub-menu>
@@ -157,13 +162,13 @@
               
               <el-form-item label="权限">
                 <el-radio-group v-model="adminc">
-                  <el-radio value=1>学生</el-radio>
+                  <el-radio value=1>用户</el-radio>
                   <el-radio value=0>教师</el-radio>
                 </el-radio-group>
               </el-form-item>
 
               <el-form-item>
-                <el-button type="primary" @click="update_student">修改学生</el-button>
+                <el-button type="primary" @click="update_student">修改用户</el-button>
               </el-form-item>
             </el-form>
           </el-card>
@@ -238,13 +243,13 @@
               
               <el-form-item label="权限">
                 <el-radio-group v-model="adminc">
-                  <el-radio value=1>学生</el-radio>
+                  <el-radio value=1>用户</el-radio>
                   <el-radio value=0>教师</el-radio>
                 </el-radio-group>
               </el-form-item>
               
               <el-form-item>
-                <el-button type="primary" @click="add_student">添加学生</el-button>
+                <el-button type="primary" @click="add_student">添加用户</el-button>
               </el-form-item>
             </el-form>
           </el-card>
@@ -282,7 +287,7 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const tableData = ref([]);
-const activeTab = ref(1); // 1: 学生基本信息, 2: 按学号查找, 3: 按姓名查找, 4: 学生成绩修改, 5: 添加学生, 9: 按班级查找
+const activeTab = ref(1); // 1: 用户基本信息, 2: 按学号查找, 3: 按姓名查找, 4: 用户成绩修改, 5: 添加用户, 9: 按班级查找
 const search_input = ref();
 const search_byid_result = ref({});
 const search_name_result = ref([]);
@@ -301,6 +306,7 @@ const permission = ref();
 const changePasswordId  = ref();
 const changeOldPassword = ref();
 const changeNewPassword = ref();
+const name = ref();
 
 const cyrb53 = (str, seed = 0) => {
     let h1 = 0xdeadbeef ^ seed,
@@ -348,12 +354,20 @@ const changePassword = async () => {
   changePasswordId.value = "";
 }
 
-onBeforeMount(() => {
-  const checkPermission = () => {
+const checkPermission = async() => {
     var id = document.cookie.split(';')[0].split('=')[1]
-    const response = axios.get(`api/checkPermission?id=${id}`);
+    var response = await axios.get(`api/checkPermission?id=${id}`);
     permission.value = (response.data.data === "0");
+    response = await axios.get('api/findById?id=' + id);
+    console.log(response);
+    var datastring = response.data.data;
+    datastring = fixJsonString(datastring);
+    const dataafter = JSON.parse(datastring);
+    name.value = dataafter.name;
   }
+
+onBeforeMount(() => {
+  checkPermission();
 })
 
 
@@ -413,7 +427,7 @@ async function search_class() {
   if (!name) {
     ElNotification.warning({
       title: '警告',
-      message: '请输入学生姓名',
+      message: '请输入用户姓名',
     });
     return;
   }
@@ -448,7 +462,7 @@ async function search_name() {
   if (!name) {
     ElNotification.warning({
       title: '警告',
-      message: '请输入学生姓名',
+      message: '请输入用户姓名',
     });
     return;
   }
@@ -620,7 +634,7 @@ async function delete_stu(){
   else{
     ElNotification.error({
       title: '错误',
-      message: '删除失败,该学生可能不存在',
+      message: '删除失败,该用户可能不存在',
     });
   }
   

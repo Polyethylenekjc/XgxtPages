@@ -108,7 +108,7 @@
         else {
             errorMessage('登录失败，请检查用户名和密码');}
     } catch (error) {
-        errorMessage('登录失败，请稍后重试');
+        errorMessage('登录失败，请检差用户名和密码或稍后重试');
     }
   }
   
